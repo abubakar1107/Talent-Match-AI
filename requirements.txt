@@ -1,0 +1,7 @@
+streamlit>=1.47.1,
+sentence-transformers,
+google-genai,
+PyPDF2,
+pandas,
+numpy,
+scikit-learn
