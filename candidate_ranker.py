@@ -79,17 +79,18 @@ class CandidateRanker:
             Analyze why this candidate is a good fit for the job based on their resume and the job description.
             
             Job Description:
-            {job_description[:2000]}
+            {job_description[:4000]}
             
             Candidate Resume:
-            {candidate_resume[:2000]}
+            {candidate_resume[:4000]}
             
             Similarity Score: {similarity_score:.3f}
             
-            Please provide a concise 2-3 sentence summary explaining:
+            Please provide a concise 2 sentence summary explaining for each of the following points:
             1. Key matching skills/experience
             2. What makes them a strong candidate
             3. Any potential areas for growth
+            4. What he lacks compared to the job description
             
             Keep the response professional and specific to the candidate's qualifications.
             """
