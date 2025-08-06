@@ -4,3 +4,5 @@ data/
 .env
 
 .streamlit/
+
+candidate_ranker2.py

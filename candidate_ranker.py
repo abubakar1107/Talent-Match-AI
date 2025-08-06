@@ -1,14 +1,14 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 import os
 import json
 from google import genai
 from google.genai import types
 import re
+import concurrent.futures
 
 class CandidateRanker:
     def __init__(self, model_name='all-MiniLM-L6-v2'):
@@ -54,7 +54,7 @@ class CandidateRanker:
         job_embedding = job_embedding.reshape(1, -1)
         
         # Calculate cosine similarity
-        similarities = cosine_similarity(job_embedding, candidate_embeddings)
+        similarities = util.cos_sim(job_embedding, candidate_embeddings)
         
         # Return flattened array of similarities
         return similarities.flatten()
@@ -79,10 +79,10 @@ class CandidateRanker:
             Analyze why this candidate is a good fit for the job based on their resume and the job description.
             
             Job Description:
-            {job_description[:4000]}
+            {job_description[:10000]}
             
             Candidate Resume:
-            {candidate_resume[:4000]}
+            {candidate_resume[:10000]}
             
             Similarity Score: {similarity_score:.3f}
             
@@ -90,7 +90,7 @@ class CandidateRanker:
             1. Key matching skills/experience
             2. What makes them a strong candidate
             3. Any potential areas for growth
-            4. What he lacks compared to the job description
+            4. What he lacks compared to the job description ?
             
             Keep the response professional and specific to the candidate's qualifications.
             """
@@ -140,25 +140,37 @@ class CandidateRanker:
         # Create results with similarity scores
         results = []
         for i, candidate in enumerate(candidates):
-            result = {
+            results.append({
                 'name': candidate['name'],
                 'content': candidate['content'],
                 'source': candidate['source'],
                 'similarity_score': float(similarities[i])
-            }
+            })
             
-            # Generate AI summary if requested and available
-            if include_ai_summary and self.gemini_client:
-                ai_summary = self.generate_ai_summary(
-                    job_description, 
-                    candidate['content'], 
-                    similarities[i]
-                )
-                if ai_summary:
-                    result['ai_summary'] = ai_summary
-            
-            results.append(result)
-        
+        # Generate AI summaries concurrently if requested
+        if include_ai_summary and self.gemini_client:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                # Map each future to its corresponding result dictionary
+                future_to_result = {
+                    executor.submit(
+                        self.generate_ai_summary,
+                        job_description,
+                        result['content'],
+                        result['similarity_score']
+                    ): result for result in results
+                }
+                
+                # As each future completes, update the result with the AI summary
+                for future in concurrent.futures.as_completed(future_to_result):
+                    result_dict = future_to_result[future]
+                    try:
+                        # CORRECTED LINE: Use .result() instead of .get()
+                        ai_summary = future.result()
+                        if ai_summary:
+                            result_dict['ai_summary'] = ai_summary
+                    except Exception as e:
+                        print(f"AI summary generation failed for {result_dict['name']}: {e}")
+
         # Sort by similarity score in descending order
         results.sort(key=lambda x: x['similarity_score'], reverse=True)
         
