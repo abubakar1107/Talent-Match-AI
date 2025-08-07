@@ -52,7 +52,7 @@ class FileProcessor:
             return text.strip()
             
         except UnicodeDecodeError:
-            # Try with different encoding if UTF-8 fails
+            
             try:
                 file.seek(0)  # Reset file pointer
                 text = file.read().decode('latin-1')
@@ -115,7 +115,7 @@ class FileProcessor:
         if len(content.strip()) < min_length:
             return False
         
-        # Check if content has some alphabetic characters (not just numbers/symbols)
+        # Check if content has some alphabetic characters
         alpha_chars = sum(1 for c in content if c.isalpha())
         if alpha_chars < min_length // 2:
             return False

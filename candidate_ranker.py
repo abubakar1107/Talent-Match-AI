@@ -69,7 +69,7 @@ class CandidateRanker:
         Keep the response professional and specific to the candidate's qualifications.
         """
 
-        # NEW: Added aggressive retry logic for top candidates
+        #Aggressive retry logic for top candidates
         if aggressive_retry:
             while True: # Loop indefinitely until success
                 try:
@@ -80,7 +80,7 @@ class CandidateRanker:
                     return response.text.strip() if response.text else None
                 except Exception as e:
                     print(f"Aggressive retry for top candidate failed: {e}. Retrying in 5 seconds...")
-                    time.sleep(5) # Wait longer between retries to avoid spamming
+                    time.sleep(5)
         else:
             # Standard limited retry for other cases
             for i in range(3):
@@ -144,6 +144,4 @@ class CandidateRanker:
                     except Exception as e:
                         print(f"Error retrieving summary for {result_dict['name']}: {e}")
 
-
-        # Return the top k results, which now include the generated summaries
         return top_results
