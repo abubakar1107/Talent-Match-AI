@@ -1,8 +1,0 @@
-# requirements.txt
-
-streamlit
-pandas
-numpy
-sentence-transformers
-google-generativeai
-pypdf
