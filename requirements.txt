@@ -4,4 +4,4 @@ pandas
 numpy
 sentence-transformers
 google-genai
-pypdf
+PyPDF2
