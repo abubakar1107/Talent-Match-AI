@@ -3,6 +3,7 @@ name = "candidate-ranking-system"
 version = "0.1.0"
 description = "An AI-powered system to rank job candidates based on resume-to-job-description similarity."
 requires-python = ">=3.11"
+package-mode = false
 dependencies = [
     "streamlit>=1.47.1",
     "google-genai",
