@@ -18,6 +18,7 @@ class CandidateRanker:
         
         Args:
             model_name (str): The name of the Sentence Transformer model to use.
+
         """
         self.model = SentenceTransformer(model_name)
         self.gemini_client = None
@@ -142,6 +143,7 @@ class CandidateRanker:
                             result_dict['ai_summary'] = ai_summary
                     except Exception as e:
                         print(f"Error retrieving summary for {result_dict['name']}: {e}")
+
 
         # Return the top k results, which now include the generated summaries
         return top_results
